@@ -27,7 +27,17 @@ var (
 			Namespace: "airquality",
 			Subsystem: "beijing",
 			Name:      "pm25",
-			Help:      "Air quality distributions.",
+			Help:      "Air quality pm2.5.",
+		},
+		[]string{"district"},
+	)
+
+	aqiVec = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: "airquality",
+			Subsystem: "beijing",
+			Name:      "aqi",
+			Help:      "Air quality aqi.",
 		},
 		[]string{"district"},
 	)
@@ -45,10 +55,11 @@ func main() {
 }
 
 func collectPM25() {
-	for range time.Tick(30 * time.Second) {
+	for range time.Tick(1 * time.Minute) {
 		for _, v := range request() {
 			if v.Position != "" {
 				pm25Vec.WithLabelValues(v.Position).Set(float64(v.PM25))
+				aqiVec.WithLabelValues(v.Position).Set(float64(v.AQI))
 			}
 		}
 	}
